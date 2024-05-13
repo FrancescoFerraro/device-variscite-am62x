@@ -1,0 +1,7 @@
+allow ueventd self:key write;
+allow ueventd vendor_debugfs_pvr:dir search;
+allow ueventd tmpfs:lnk_file read;
+
+recovery_only(`
+    allow ueventd self:capability {sys_module sys_nice};
+');

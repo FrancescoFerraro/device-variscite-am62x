@@ -1,0 +1,18 @@
+allow tee vendor_data_file:dir create_dir_perms;
+allow tee vendor_data_file:file create_file_perms;
+allow tee tee_data_file:dir { add_name create write };
+allow tee tee_data_file:file { append create getattr open read write };
+allow tee device:dir r_dir_perms;
+allow tee persist_block_device:dir create_dir_perms;
+allow tee persist_block_device:file create_file_perms;
+allow tee persist_block_device:chr_file rw_file_perms;
+allow tee mnt_vendor_file:dir { getattr search };
+
+# required to run xtest
+userdebug_or_eng(`
+  allow tee self:tcp_socket create_socket_perms;
+  allow tee self:udp_socket create_socket_perms;
+  allow tee fwmarkd_socket:sock_file write;
+  allow tee port:tcp_socket name_connect;
+  allow tee netd:unix_stream_socket connectto;
+')

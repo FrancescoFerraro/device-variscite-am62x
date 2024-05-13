@@ -1,0 +1,2 @@
+allow vold sysfs_mmc:file write;
+allow vold persist_block_device:dir { open read };

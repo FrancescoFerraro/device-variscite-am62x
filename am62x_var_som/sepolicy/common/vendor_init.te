@@ -1,0 +1,23 @@
+vendor_internal_prop(vendor_cf_graphics_config_prop)
+
+allow vendor_init self:capability sys_module;
+allow vendor_init vendor_file:system { module_load };
+allow vendor_init vendor_init:key write;
+
+allow vendor_init proc_dirty:file write;
+allow vendor_init proc_sched:file write;
+allow vendor_init system_prop:file read;
+
+# TODO: remove this when the following change is merged
+# https://android-review.googlesource.com/c/platform/system/sepolicy/+/2356622
+allow vendor_init sysfs_wake_lock:file rw_file_perms;
+allow vendor_init self:global_capability2_class_set block_suspend;
+
+dontaudit vendor_init vendor_debugfs_pvr:file setattr;
+
+recovery_only(`
+	allow vendor_init rootfs:dir { read };
+	allow vendor_init rootfs:system { module_load };
+');
+
+set_prop(vendor_init, vendor_cf_graphics_config_prop)

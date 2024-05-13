@@ -1,0 +1,17 @@
+allow kernel self:capability mknod;
+
+allow kernel device:dir { write add_name create };
+allow kernel device:chr_file { create setattr };
+
+allow kernel vendor_file:file { read open };
+allow kernel vendor_firmware_file:dir { search getattr read };                                                                                                                                       
+allow kernel vendor_firmware_file:file { getattr open read };
+allow kernel vendor_init:key { search };
+allow kernel ueventd:key search;
+
+allow kernel self:capability { sys_admin };
+
+recovery_only(`
+	allow kernel device:blk_file { create getattr setattr unlink };
+	allow kernel device:dir { remove_name };
+');

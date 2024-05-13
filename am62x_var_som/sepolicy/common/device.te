@@ -1,0 +1,5 @@
+type vbmeta_block_device, dev_type;
+type dtbo_block_device, dev_type;
+type persist_block_device, dev_type;
+
+allow persist_block_device labeledfs:filesystem associate;

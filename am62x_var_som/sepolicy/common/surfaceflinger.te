@@ -1,0 +1,3 @@
+gpu_access(surfaceflinger)
+allow surfaceflinger hal_camera_default:fd use;
+

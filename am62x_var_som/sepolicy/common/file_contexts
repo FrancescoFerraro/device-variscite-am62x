@@ -1,0 +1,68 @@
+# devices
+/dev/block/zram0                u:object_r:swap_block_device:s0
+/dev/ttyS2                      u:object_r:console_device:s0
+/dev/dri/card[0-9]*             u:object_r:dri_device:s0
+/dev/dri/renderD128             u:object_r:gpu_device:s0
+/dev/pvr_sync                   u:object_r:gpu_device:s0
+/dev/dma_heap/reserved          u:object_r:dmabuf_cma_heap_device:s0
+/dev/dma_heap/carveout_video    u:object_r:dmabuf_system_heap_device:s0
+
+# video devices
+/dev/media[0-2]                         u:object_r:video_device:s0
+/dev/v4l-subdev.*                       u:object_r:video_device:s0
+
+# Libraries
+/vendor/lib(64)?/hw/android\.hardware\.graphics\.mapper@4\.0-impl.so    u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/hw/mapper\.powervr\.so                                 u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/hw/gralloc\.am62x\.so                                  u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/hw/gralloc\.am62p\.so                                  u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/hw/vulkan\.powervr\.so                                 u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libdrm\.so                                             u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libIMGegl\.so                                          u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libglslcompiler\.so                                    u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libgpudataproducer\.so                                 u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libpvrANDROID_WSEGL\.so                                u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libPVROCL\.so                                          u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libsrv_um\.so                                          u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libufwriter\.so                                        u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libusc\.so                                             u:object_r:same_process_hal_file:s0
+
+# binaries
+/vendor/bin/hw/android\.hardware\.atrace@1\.0-service\.img                          u:object_r:hal_atrace_default_exec:s0
+/vendor/bin/hw/android\.hardware\.dumpstate@1\.1-service\.img                       u:object_r:hal_dumpstate_default_exec:s0
+/vendor/bin/hw/android\.hardware\.gatekeeper@1\.0-service\.software	            u:object_r:hal_gatekeeper_default_exec:s0
+/vendor/bin/hw/android\.hardware\.graphics\.allocator\.aidl-service\.img            u:object_r:hal_graphics_allocator_default_exec:s0
+/vendor/bin/hw/android\.hardware\.memtrack-service\.img                             u:object_r:hal_memtrack_default_exec:s0
+/vendor/bin/hw/android\.hardware\.thermal@2\.0-service\.ti                          u:object_r:hal_thermal_default_exec:s0
+/vendor/bin/pvrsrvctl		                                                    u:object_r:pvrsrvctl_exec:s0
+/vendor/bin/hw/android\.hardware\.health-service\.cuttlefish                        u:object_r:hal_health_default_exec:s0
+/vendor/bin/hw/android\.hardware\.health\.storage-service\.cuttlefish               u:object_r:hal_health_storage_default_exec:s0
+
+# drm
+/vendor/bin/hw/android\.hardware\.drm@[0-9]+\.[0-9]+-service\.clearkey     u:object_r:hal_drm_clearkey_exec:s0
+/data/vendor/mediadrm(/.*)?    u:object_r:mediadrm_vendor_data_file:s0
+
+/sys/devices/virtual/thermal(/.*)?      u:object_r:sysfs_thermal:s0
+/sys/class/thermal(/.*)?                u:object_r:sysfs_thermal:s0
+/sys/devices/platform/bus@f0000/fa20000.mmc/mmc_host/mmc2/mmc2:0001/mmc2:0001:2/wl18xx.2.auto/net/wlan0/mtu    u:object_r:sysfs_net:s0
+
+/(vendor|system/vendor)/firmware(/.*)?        u:object_r:vendor_firmware_file:s0
+
+# optee
+/dev/tee[0-9]*                                                     u:object_r:tee_device:s0
+/dev/teepriv[0-9]*                                                 u:object_r:tee_device:s0
+/vendor/bin/tee-supplicant                                         u:object_r:tee_exec:s0
+/vendor/bin/hw/android\.hardware\.gatekeeper@1\.0-service\.optee   u:object_r:hal_gatekeeper_default_exec:s0
+/vendor/bin/hw/android\.hardware\.security\.keymint-service\.optee u:object_r:hal_keymint_default_exec:s0
+/data/vendor/tee(/.*)?                                             u:object_r:tee_data_file:s0
+/mnt/vendor/persist(/.*)?                                          u:object_r:vendor_data_file:s0
+/mnt/vendor/persist/tee(/.*)?                                      u:object_r:tee_data_file:s0
+
+# Camera HAL
+/vendor/bin/hw/android\.hardware\.camera.provider@2\.5-service_64               u:object_r:hal_camera_default_exec:s0
+/vendor/bin/hw/android\.hardware\.camera.provider@2\.5-service                  u:object_r:hal_camera_default_exec:s0
+/vendor/bin/hw/android\.hardware\.camera.provider@2\.5-external-service\.ti     u:object_r:hal_camera_default_exec:s0
+/vendor/bin/hw/android\.hardware\.camera.provider@2\.5-external-service_64\.ti  u:object_r:hal_camera_default_exec:s0
+
+# V4L2 Codec2
+/vendor/bin/hw/android\.hardware\.media\.c2@1\.0-service-v4l2(.*)?              u:object_r:mediacodec_exec:s0

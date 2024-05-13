@@ -1,0 +1,145 @@
+on early-init
+    # mount debugfs
+    mount debugfs /sys/kernel/debug /sys/kernel/debug mode=755
+
+on init
+    # Boot time fs tuning
+    write /sys/block/sda/queue/iostats 0
+    write /sys/block/sda/queue/scheduler bfq
+    write /sys/block/sda/queue/iosched/slice_idle 0
+    write /sys/block/sda/queue/nr_requests 256
+    write /dev/sys/fs/by-name/userdata/data_io_flag 56
+    write /dev/sys/fs/by-name/userdata/node_io_flag 56
+
+    # ZRAM setup
+    write /proc/sys/vm/page-cluster 0
+    write /proc/sys/vm/extra_free_kbytes 32768
+
+    # Apply network parameters for high data performance.
+    write /proc/sys/net/core/rmem_default 327680
+    write /proc/sys/net/core/rmem_max 8388608
+    write /proc/sys/net/core/wmem_default 327680
+    write /proc/sys/net/core/wmem_max 8388608
+    write /proc/sys/net/core/optmem_max 20480
+    write /proc/sys/net/core/netdev_max_backlog 10000
+    write /proc/sys/net/ipv4/tcp_rmem "2097152 4194304 8388608"
+    write /proc/sys/net/ipv4/tcp_wmem "262144 524288 1048576"
+    write /proc/sys/net/ipv4/tcp_mem "44259 59012 88518"
+    write /proc/sys/net/ipv4/udp_mem "88518 118025 177036"
+
+    # RT uclamp setting
+    write /proc/sys/kernel/sched_util_clamp_min_rt_default 0
+
+    # change permissions and default values for camera-daemon cpu controller
+    chown system system /dev/cpuctl/camera-daemon/cgroup.procs
+
+    mkdir /dev/cpuset/camera-daemon-high-group
+    write /dev/cpuset/camera-daemon-high-group/cpus 0-3
+    write /dev/cpuset/camera-daemon-high-group/mems 0
+    chown system system /dev/cpuset/camera-daemon-high-group/tasks
+    chmod 0664 /dev/cpuset/camera-daemon-high-group/tasks
+
+    mkdir /dev/cpuset/camera-daemon-mid-group
+    write /dev/cpuset/camera-daemon-mid-group/cpus 0-3
+    write /dev/cpuset/camera-daemon-mid-group/mems 0
+    chown system system /dev/cpuset/camera-daemon-mid-group/tasks
+    chmod 0664 /dev/cpuset/camera-daemon-mid-group/tasks
+
+    mkdir /dev/cpuset/camera-daemon-mid-high-group
+    write /dev/cpuset/camera-daemon-mid-high-group/cpus 0-3
+    write /dev/cpuset/camera-daemon-mid-high-group/mems 0
+    chown system system /dev/cpuset/camera-daemon-mid-high-group/tasks
+    chmod 0664 /dev/cpuset/camera-daemon-mid-high-group/tasks
+
+    chown system system /dev/cpuset/cgroup.procs
+
+    start watchdogd
+
+on early-boot
+    # Update dm-verity state and set partition.*.verified properties
+    verity_update_state
+
+on boot
+    # Allow to access debugfs for system:system
+    chmod 0755 /sys/kernel/debug
+    chown system system /sys/kernel/debug
+    # Set up kernel tracing, but disable it by default
+    chmod 0222 /sys/kernel/debug/tracing/trace_marker
+    write /sys/kernel/debug/tracing/tracing_on 0
+
+# We need vold early for metadata encryption
+on early-fs
+    start vold
+
+on fs
+    mount_all --early
+
+on post-fs
+    # set RLIMIT_MEMLOCK to 64MB
+    setrlimit 8 67108864 67108864
+
+    chown root shell /sys/kernel/tracing/options
+    chown root shell /sys/kernel/tracing/events
+    chown root shell /sys/kernel/tracing/events/sched
+    chown root shell /sys/kernel/tracing/events/sched/sched_switch
+    chown root shell /sys/kernel/tracing/events/sched/sched_wakeup
+
+on late-fs
+    # Start bootanimation class before mount
+    start bootanim
+    class_start animation
+
+    # Wait for hwservicemanager ready since fsck might be triggered in mount_all --late
+    # In such case, init won't responce the property_set from hwservicemanager and then
+    # cause services for bootanim not running.
+    wait_for_prop hwservicemanager.ready true
+
+on post-fs-data
+    setprop vold.post_fs_data_done 1
+
+on property:sys.boot_completed=1
+    # Runtime fs tuning
+    write /sys/block/mmcblk0/queue/nr_requests 64
+    write /sys/block/mmcblk0/queue/iostats 1
+
+    # Enable ZRAM on boot_complete
+    swapon_all
+    write /proc/sys/vm/swappiness 100
+
+    # Back to default VM settings
+    write /proc/sys/vm/dirty_expire_centisecs 3000
+    write /proc/sys/vm/dirty_background_ratio 10
+
+    # cfs_rq clamp is using tg->uclamp setting
+    # align it with the vendor_group setting
+    write /dev/cpuctl/background/cpu.uclamp.max 60
+    write /dev/cpuctl/system-background/cpu.uclamp.max 60
+
+    # Setup cpu.shares to throttle background groups (bg ~ 5% sysbg ~ 10%)
+    write /dev/cpuctl/background/cpu.shares 1024
+    write /dev/cpuctl/system-background/cpu.shares 2048
+    write /dev/cpuctl/system/cpu.shares 20480
+    # We only have system and background groups holding tasks and the groups below are empty
+    write /dev/cpuctl/camera-daemon/cpu.shares 20480
+    write /dev/cpuctl/foreground/cpu.shares 20480
+    write /dev/cpuctl/nnapi-hal/cpu.shares 20480
+    write /dev/cpuctl/rt/cpu.shares 20480
+    write /dev/cpuctl/top-app/cpu.shares 20480
+
+on property:sys.boot_completed=1 && property:sys.wifitracing.started=1
+    chmod 0755 /sys/kernel/tracing
+    chmod 0755 /sys/kernel/debug/tracing
+    chmod 0766 /sys/kernel/tracing/trace_marker
+    chmod 0766 /sys/kernel/debug/tracing/trace_marker
+
+on zygote-start
+    mkdir /data/vendor/wifi 0770 wifi wifi
+    mkdir /data/vendor/wifi/wpa 0770 wifi wifi
+    mkdir /data/vendor/wifi/wpa/sockets 0770 wifi wifi
+
+service pvrsrvinit /vendor/bin/pvrsrvctl --start
+    class core
+    user root
+    group root
+    oneshot
+

@@ -1,0 +1,31 @@
+ro.hardware.camera=libcamera
+
+# Set default log size to 1M
+ro.logd.size=1M
+
+#enforce permission allowlists for system apps.
+ro.control_privapp_permissions=enforce
+
+# Enable zygote critical window.
+zygote.critical_window.minute=10
+
+# Disable screen lock by default
+ro.lockscreen.disable.default=true
+
+# wifi
+wifi.interface=wlan0
+wifi.supplicant_scan_interval=15
+
+# Graphics
+ro.hardware.hwcomposer=drm
+ro.hardware.egl=powervr
+ro.hardware.vulkan=powervr
+graphics.gpu.profiler.support=true
+vendor.hwc.drm.scale_with_gpu=1
+vendor.hwc.drm.device=/dev/dri/card0
+
+# Codec2: create input surface on the framework side
+debug.stagefright.c2inputsurface=-1
+
+# Give us 10 seconds to reboot/shutdown cleanly
+ro.build.shutdown_timeout=10
