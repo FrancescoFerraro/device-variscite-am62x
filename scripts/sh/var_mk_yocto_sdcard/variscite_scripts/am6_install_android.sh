@@ -25,14 +25,12 @@ function help() {
 	echo
 	echo " options:"
 	echo " -h			displays this help message"
-	echo " -f soc_name		flash android image [optional]."
 }
 
 moreoptions=1
 while [ "$moreoptions" = 1 -a $# -gt 0 ]; do
 	case $1 in
 		-h) help; exit ;;
-		-f) soc_name=$2; shift ;;
 		*)  moreoptions=0 ;;
 	esac
 	[ "$moreoptions" = 0 ] && [ $# -gt 2 ] && help && exit
@@ -40,7 +38,7 @@ while [ "$moreoptions" = 1 -a $# -gt 0 ]; do
 done
 
 function add_am62x_menu() {
-	img_list+=("dtbo.img                            (VAR-SOM-AM62 on Symphony-Board, with LVDS support)")
+	img_list+=("dtbo-unsigned.img                            (VAR-SOM-AM62 on Symphony-Board, with LVDS support)")
 }
 #Prepare the menu based on SOM
 case $som in
